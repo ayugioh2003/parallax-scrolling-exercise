@@ -104,7 +104,7 @@ gulp.task('YAML-layout', () => {
     .pipe(
       $.sass({
         outputStyle: 'nested',
-        includePaths: ['./node_modules/bootstrap/scss'],
+        // includePaths: ['./node_modules/bootstrap/scss'],
       }).on('error', $.sass.logError),
     )
     .pipe($.postcss(processors))
@@ -124,7 +124,7 @@ gulp.task('vendorJS', () => {
   return gulp
     .src([
       './node_modules/jquery/dist/jquery.slim.min.js',
-      './node_modules/bootstrap/dist/js/bootstrap.bundle.min.js',
+      // './node_modules/bootstrap/dist/js/bootstrap.bundle.min.js',
     ])
     .pipe($.concat('vendor.js'))
     // .pipe($.if(envIsPro, $.uglify()))
