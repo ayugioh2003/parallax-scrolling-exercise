@@ -210,7 +210,7 @@ a {
   text-align: center;
   background-color: $brand-accent;
   box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
-  transition: width 1s ease;
+  transition: width 3s ease; // 進度條顯示的速度
 }
 
 
