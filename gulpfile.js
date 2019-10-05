@@ -123,7 +123,7 @@ gulp.task('YAML-layout', () => {
 gulp.task('vendorJS', () => {
   return gulp
     .src([
-      './node_modules/jquery/dist/jquery.slim.min.js',
+      './node_modules/jquery/dist/jquery.min.js',
       // './node_modules/bootstrap/dist/js/bootstrap.bundle.min.js',
     ])
     .pipe($.concat('vendor.js'))
