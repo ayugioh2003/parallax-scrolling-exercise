@@ -412,3 +412,15 @@ a {
 .bg-gradient1 {
   background-image: linear-gradient(45deg, #59f0ff, $brand-primary);
 }
+
+
+// animated
+.animated {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 1.5s;
+}
+.fadeIn {
+  opacity: 1;
+  transform: translateY(0)
+}
