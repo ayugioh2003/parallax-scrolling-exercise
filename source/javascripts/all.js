@@ -54,6 +54,10 @@ $(document).ready(function() {
       });
       console.log('animated')
     }
-
+    // 背景圖片會用不同速率移動
+    $('#profiles').css('background-position-y', `-${scrollPos/2}px`)
+    $('.header-img').css('transform', `translateY(${scrollPos/2}px)`)
+    $('#header-ele').css('transform', `translateY(${scrollPos/3}px)`)
+    console.log('scroll')
   });
 });
