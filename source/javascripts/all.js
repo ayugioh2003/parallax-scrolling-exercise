@@ -8,8 +8,8 @@ var scroll = new SmoothScroll('a[href*="#"]', {
 // 滾動視窗時，就做事情
 var showSkill = false // 顯示過 skill 沒有
 window.addEventListener('scroll', function() {
-  var scrollPos = $(window).scrollTop() // 目前視窗的位置
-  var windowHeight = $(window).height() // 目前畫面的高
+  var scrollPos = window.pageYOffset // 目前視窗的位置
+  var windowHeight = window.innerHeight // 目前畫面的高
   // 畫面進入連結對應區愧，變更狀態
   $(".scrollTop").each(function() {
     // 處理每個 a 連結的狀態
