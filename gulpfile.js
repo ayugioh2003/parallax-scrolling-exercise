@@ -51,7 +51,7 @@ const PATH = {
   },
   vendorjs: {
     src: [
-      "./node_modules/jquery/dist/jquery.js",
+      // "./node_modules/jquery/dist/jquery.js",
       "./node_modules/smooth-scroll/dist/smooth-scroll.polyfills.min.js"
       // "./node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
     ],
