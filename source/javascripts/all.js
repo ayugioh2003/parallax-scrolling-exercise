@@ -1,30 +1,32 @@
 // 平滑滾動
 var scroll = new SmoothScroll('a[href*="#"]', {
-	speed: 750,
-	speedAsDuration: true
-});
+  speed: 750,
+  speedAsDuration: true
+})
 
 // 監控視窗的滾動
 // 滾動視窗時，就做事情
 var showSkill = false // 顯示過 skill 沒有
-window.addEventListener('scroll', function() {
+window.addEventListener("scroll", function() {
   var scrollPos = window.pageYOffset // 目前視窗的位置
   var windowHeight = window.innerHeight // 目前畫面的高
-  // 畫面進入連結對應區愧，變更狀態
-  $(".scrollTop").each(function() {
-    // 處理每個 a 連結的狀態
-    var target = $(this).attr("href") // 每個元素 href 的位置
-    var targetPos = $(target).offset().top // 元素的位置
-    var targetHeight = $(target).outerHeight() // 元素的高，包含 padding
 
-    // 判斷視窗位置是否進入連結對應到的元素範圍
-    if (scrollPos >= targetPos - 200 && scrollPos < targetPos + targetHeight) {
-      $(".scrollTop").removeClass("active") // 先將所有 a 連結狀態都取消
-      $(this).addClass("active") // 將 a 連結的狀態變成 active
+  // 畫面進入連結對應區愧，變更連結狀態
+  document.querySelectorAll(".scrollTop").forEach(function(ele) {
+    const target = ele.getAttribute("href")
+    const targetEle = document.querySelector(target)
+    const targetPos = targetEle.offsetTop
+    const targetHeight = targetEle.offsetHeight
+    const linkEle = document.querySelector(`a[href="${target}"]`)
+
+    if (scrollPos >= targetPos - 50 && scrollPos < targetPos + targetHeight) {
+      linkEle.classList.remove("active")
+      linkEle.classList.add("active")
     } else {
-      $(this).removeClass("active")
+      linkEle.classList.remove("active")
     }
   })
+
   // 畫面進入 progress bar，秀出進度條
   var skillTop = $("#skills").position().top
   if (scrollPos + windowHeight / 2 >= skillTop && !showSkill) {
