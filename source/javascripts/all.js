@@ -1,3 +1,11 @@
+// querySelector alias
+const $q = function (className) {
+  return document.querySelector(className)
+}
+const $qa = function (className) {
+  return document.querySelectorAll(className)
+}
+
 // 平滑滾動
 var scroll = new SmoothScroll('a[href*="#"]', {
   speed: 750,
@@ -12,12 +20,12 @@ window.addEventListener("scroll", function() {
   var windowHeight = window.innerHeight // 目前畫面的高
 
   // 畫面進入連結對應區愧，變更連結狀態
-  document.querySelectorAll(".scrollTop").forEach(function(ele) {
+  $qa('.scrollTop').forEach(function(ele) {
     const target = ele.getAttribute("href")
-    const targetEle = document.querySelector(target)
+    const targetEle = $q(target)
     const targetPos = targetEle.offsetTop
     const targetHeight = targetEle.offsetHeight
-    const linkEle = document.querySelector(`a[href="${target}"]`)
+    const linkEle = $q(`a[href="${target}"]`)
 
     if (scrollPos >= targetPos - 50 && scrollPos < targetPos + targetHeight) {
       linkEle.classList.remove("active")
@@ -38,6 +46,7 @@ window.addEventListener("scroll", function() {
     })
     showSkill = true
   }
+
   // 畫面進入 .animated，添加 .fadeIn
   var showAnimated = $(".animated").length == $(".fadeIn").length
   if (!showAnimated) {
