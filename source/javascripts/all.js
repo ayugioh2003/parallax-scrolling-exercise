@@ -1,4 +1,3 @@
-$(document).ready(function() {
   // 監控右上角連結的點擊，有點擊就滾動到對應區塊
   $(".scrollTop").click(function(e) {
     // 點擊到連結，就做事情
@@ -60,4 +59,3 @@ $(document).ready(function() {
     $('#header-ele').css('transform', `translateY(${scrollPos/3}px)`)
     console.log('scroll')
   });
-});
