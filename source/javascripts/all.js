@@ -1,13 +1,8 @@
-// 監控右上角連結的點擊，有點擊就滾動到對應區塊
-$(".scrollTop").click(function(e) {
-  // 點擊到連結，就做事情
-  e.preventDefault() // 取消預設事件（點擊連結，頁面跳到錨點處）
-
-  var target = $(this).attr("href") // 抓取連結的 href
-  var targetPos = $(target).offset().top // 抓取 href 對應元素的位置
-
-  $("html, body").animate({ scrollTop: targetPos }, 1000) // 平滑滾動效果
-})
+// 平滑滾動
+var scroll = new SmoothScroll('a[href*="#"]', {
+	speed: 750,
+	speedAsDuration: true
+});
 
 // 監控視窗的滾動
 // 滾動視窗時，就做事情
