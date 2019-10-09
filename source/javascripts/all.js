@@ -21,11 +21,11 @@ window.addEventListener("scroll", function() {
 
   // 畫面進入連結對應區愧，變更連結狀態
   $qa('.scrollTop').forEach(function(ele) {
-    const target = ele.getAttribute("href")
-    const targetEle = $q(target)
-    const targetPos = targetEle.offsetTop
-    const targetHeight = targetEle.offsetHeight
-    const linkEle = $q(`a[href="${target}"]`)
+    const target = ele.getAttribute("href")       // 區塊錨點
+    const targetEle = $q(target)                  // 區塊 ele
+    const targetPos = targetEle.offsetTop         // 區塊位置
+    const targetHeight = targetEle.offsetHeight   // 區塊高度
+    const linkEle = $q(`a[href="${target}"]`)     // 目前 for 到的連結 ele
 
     if (scrollPos >= targetPos - 50 && scrollPos < targetPos + targetHeight) {
       linkEle.classList.remove("active")
