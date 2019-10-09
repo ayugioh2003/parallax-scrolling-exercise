@@ -1,209 +1,278 @@
-// --- 載入套件 --------------------------------------------------
-// --- 載入套件 | 最重要 der gulp
-var gulp = require('gulp')
-// --- 載入套件 | 冠有 gulp 名，有了 $，就都不用進來惹
- var $ = require('gulp-load-plugins')();
-// --- 載入套件 | 沒錢百事哀，還是要自己過來載入，不然沒人看得到
- var autoprefixer = require('autoprefixer');
-var browserSync = require('browser-sync').create();
-var minimist = require('minimist')
-var gulpSequence = require('gulp-sequence') // 特例
- // --- 用不到的
- // var mainBowerFiles = require('main-bower-files')
+const gulp = require("gulp")
+const del = require("del")
+const autoprefixer = require("autoprefixer")
+const browserSync = require("browser-sync").create()
+const minimist = require("minimist")
+const log = require("fancy-log")
+const ejsLint = require('ejs-lint')
+
+const $ = require("gulp-load-plugins")()
+
+sass.compiler = require('node-sass');
 
 
-
-// --- 變數 ------------------------------------------------------
-// --- 變數 | 開發 or 生產環境，minimist, if
+/*****************************************************
+ * 變數 block
+ *****************************************************/
 var envOptions = {
-  string: 'env',
-  default: { env: 'develop' }
+  string: "env",
+  default: { env: "develop" }
 }
-var options = minimist(process.argv.slice(2), envOptions)
-console.log(options)
-var envIsPro = options.env === 'production'
+var options = minimist(process.argv.slice(2), envOptions) // process.argv = [node, gulp.js, arg1, arg2, ...]
+var envIsPro =
+  options.env === "production" || options.env == "pro" || options.env == "prod"
 
+exports.envNow = function envNow(cb) {
+  console.log(`env now is: ${options.env}, so envIsPro is ${envIsPro}`)
+  console.log(options)
+  cb()
+}
 
+const PATH = {
+  ejs: {
+    src: [
+      // "./source/**/*.html",
+      "./source/templates/**.ejs",
+      "!./templates/**/_*.ejs"
+    ],
+    dest: "./public"
+  },
+  css: {
+    src: ["./source/stylesheets/**/*.sass", "./source/stylesheets/**/*.scss"],
+    dest: "./public/stylesheets"
+  },
+  js: {
+    src: ["./source/javascripts/**/*.js"],
+    dest: "./public/javascripts"
+  },
+  img: {
+    src: "./source/images/*",
+    dest: "./public/images"
+  },
+  vendorjs: {
+    src: [
+      "./node_modules/jquery/dist/jquery.js",
+      // "./node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+    ],
+    dest: "./public/javascripts"
+  },
+  bs: {
+    dir_src: "./node_modules/bootstrap/scss",
+    helper_src: "./node_module/bootstrap/scss/_variables.scss",
+    helper_dest: ".source/stylesheets/hellper/"
+  },
+  others: {
+    src: [
+      "./source/**/**",
+      "!source/javascripts/**/**",
+      "!source/stylesheets/**/**",
+      "!source/**/*.ejs",
+      "!source/**/*.pug",
+      "!source/**/*.jade",
+      "!source/**/*.html"
+    ],
+    dest: "./public"
+  }
+}
 
-// --- 手動區 ------------------------------------------------------
-// --- 測試用
- gulp.task('copyHTML', function () {
-  return gulp.src('./source/**/*.html')
-    .pipe(gulp.dest('./public'))
+/*****************************************************
+ * Hello gulp block
+ *****************************************************/
+gulp.task("hello3", function(cb) {
+  console.log("hello gulp 3.9.1")
+  cb()
 })
-// --- 複製 | BS 的 _variables
-gulp.task('cp-bs-var', function () {
-  return gulp.src('./node_modules/bootstrap/scss/_variables.scss')
-    .pipe(gulp.dest('./source/stylesheets/helper/'))
-})
 
+function hello4CommonJS(cb) {
+  console.log("hello gulp 4.0, CommonJS format")
+  cb()
+}
+exports.hello4CommonJS = hello4CommonJS
 
+// export function hello4ES6(cb) {
+//   console.log("hello gulp 4.0, ES6 format")
+//   cb()
+// }
 
-// --- 自動區 -------------------------------------------------------
-// --- clean | 把之前編譯過、暫存的檔案都砍掉 
-gulp.task('clean', () => {
-  return gulp.src(['./public', './.tmp'], { read: false })
-    .pipe($.clean());
-});
-// --- copy | 把檔案從 ./source 複製到 ./public
-gulp.task('copy', () => {
-  gulp
-    .src(['./source/**/**', '!source/stylesheets/**/**', '!source/**/*.ejs', '!source/**/*.html'])
-    .pipe(gulp.dest('./public/'))
-    .pipe(
-      browserSync.reload({
-        stream: true,
-      }),
-    );
-});
+/*****************************************************
+ * 複製檔案 block
+ *****************************************************/
+function copyHTML() {
+  return gulp.src("./source/**/*.html").pipe(gulp.dest("./public"))
+}
+exports.copyHTML = copyHTML
 
+function copyBsHelper() {
+  return gulp.src(PATH.bs.helper_src).pipe(gulp.dest(PATH.bs.helper_dest))
+}
+exports.copyBsHelper = copyBsHelper
 
-// --- HTML | YAML-layout
-gulp.task('YAML-layout', () => {
+function copy() {
+  return gulp.src(PATH.others.src).pipe(gulp.dest(PATH.others.dest))
+}
+exports.copy = copy
+
+/*****************************************************
+ * 清除暫存 block
+ *****************************************************/
+function clean() {
+  return del(["./public", "./.tmp"])
+}
+exports.clean = clean
+
+function cleanEJS() {
+  return del("./public/*.ejs")
+}
+
+/*****************************************************
+ * HTML 處理 block
+ *****************************************************/
+function ejs() {
   return gulp
-    .src(['./source/**/*.ejs', './source/**/*.html'])
+    .src(PATH.ejs.src)
     .pipe($.plumber())
-    .pipe($.frontMatter())
+    .pipe($.frontMatter({property: 'data', remove: true}))
+    .pipe($.layout(function(file){return file.data}))
     .pipe(
-      $.layout((file) => {
-        return file.frontMatter;
-      }),
+      $.ejs().on('error', log)
     )
-    .pipe(gulp.dest('./public'))
-    .pipe(
-      browserSync.reload({
-        stream: true,
-      }),
-    );
-});
-// --- HTML | 防噴錯 > jade-html & 縮一縮 (if-pro) > 送出去 > 看網頁
- gulp.task('jade', function () {
-  // var YOUR_LOCALS = {};
-  gulp.src('./source/**/*.jade')
-    .pipe($.plumber())
-    .pipe($.if(envIsPro, $.jade(), $.jade({ pretty: true })))
-    .pipe(gulp.dest('./public/'))
-    .pipe(browserSync.stream());
-});
+    .pipe($.rename({ extname: '.html'}))
+    .pipe($.if(envIsPro, $.htmlmin({collapseWhitespace: true})))
+    .pipe(gulp.dest(PATH.ejs.dest))
+    .pipe($.if(!envIsPro, browserSync.stream()))
+}
+exports.ejs = ejs
 
+function ejslint() {
+  return gulp.src(PATH.ejs.src)
+    .pipe(ejsLint())
+}
+exports.ejslint = ejslint
 
-// --- CSS | 防噴錯 > 建地圖 > sass-css > 加前綴 > 縮一縮 (if-pro) > 寫地圖 > 送出去 > 看網頁
- gulp.task('sass', () => {
-
-  // PostCSS AutoPrefixer
-  const processors = [
-    autoprefixer({
-      browsers: ['last 5 version'],
-    }),
-  ];
+/*****************************************************
+ * CSS 處理 block
+ *****************************************************/
+function sass() {
+  const processors = [autoprefixer()]
 
   return gulp
-    .src(['./source/stylesheets/**/*.sass', './source/stylesheets/**/*.scss'])
+    .src(PATH.css.src)
     .pipe($.plumber())
     .pipe($.sourcemaps.init())
     .pipe(
       $.sass({
-        outputStyle: 'nested',
-        // includePaths: ['./node_modules/bootstrap/scss'],
-      }).on('error', $.sass.logError),
+        outputStyle: "nested",
+        includePaths: PATH.bs.dir_src
+      }).on("error", $.sass.logError)
     )
     .pipe($.postcss(processors))
-    .pipe($.if(options.env === 'production', $.minifyCss())) // 假設開發環境則壓縮 CSS
-    .pipe($.sourcemaps.write('.'))
-    .pipe(gulp.dest('./public/stylesheets'))
-    .pipe(
-      browserSync.reload({
-        stream: true,
-      }),
-    );
-});
+    .pipe($.if(envIsPro, $.cleanCss()))
+    .pipe($.sourcemaps.write("."))
+    .pipe(gulp.dest(PATH.css.dest))
+    .pipe($.if(!envIsPro, browserSync.stream()))
+}
+exports.sass = sass
 
-
-// --- JS | verdorJS
-gulp.task('vendorJS', () => {
+/*****************************************************
+ *  JS 處理 block
+ *****************************************************/
+function vendorJS() {
   return gulp
-    .src([
-      './node_modules/jquery/dist/jquery.min.js',
-      // './node_modules/bootstrap/dist/js/bootstrap.bundle.min.js',
-    ])
-    .pipe($.concat('vendor.js'))
-    // .pipe($.if(envIsPro, $.uglify()))
-    .pipe(gulp.dest('./public/javascripts'));
-});
-// --- JS | babel 防噴錯 > 看地圖 > babel-js > 包一包 > 縮一縮 (if-pro) > 印地圖 > 送出去 > 看網頁  
-// --- JS | need gulp-babel, gulp-gulify
-gulp.task('babel', function () {
-  return gulp.src('./source/javascripts/**/*.js')
+    .src(PATH.vendorjs.src)
+    .pipe($.concat("vendor.js"))
+    .pipe(gulp.dest(PATH.vendorjs.dest))
+}
+exports.vendorJS = vendorJS
+
+function babel() {
+  return gulp
+    .src(PATH.js.src)
     .pipe($.plumber())
     .pipe($.sourcemaps.init())
-    .pipe($.babel({
-      presets: ['@babel/env']
-    }))
-    .pipe($.concat('all.js'))
-    .pipe($.if(envIsPro,
-      $.uglify({
-        compress: {
-          drop_console: true
-        }
+    .pipe(
+      $.babel({
+        presets: ["@babel/env"]
       })
-    ))
-    .pipe($.sourcemaps.write('.'))
-    .pipe(gulp.dest('./public/javascripts'))
-    .pipe(browserSync.stream());
-});
+    )
+    .pipe($.concat("all.js"))
+    .pipe(
+      $.if(
+        envIsPro,
+        $.uglify({
+          compress: {
+            drop_console: true
+          }
+        })
+      )
+    )
+    .pipe($.sourcemaps.write("."))
+    .pipe(gulp.dest(PATH.js.dest))
+    .pipe($.if(!envIsPro, browserSync.stream()))
+}
+exports.babel = babel
 
-
-// --- 圖片 | imageMin, need gulp-imagemin
-gulp.task('imageMin', () => {
-  gulp.src('./source/images/*')
+/*****************************************************
+ *  圖片處理 block
+ *****************************************************/
+function imageMin() {
+  return gulp
+    .src(PATH.img.src)
     .pipe($.if(envIsPro, $.imagemin()))
-    .pipe(gulp.dest('./public/images'))
-    .pipe(browserSync.stream())
-});
+    .pipe(gulp.dest(PATH.img.dest))
+    .pipe($.if(envIsPro, browserSync.stream()))
+}
+exports.imageMin = imageMin
 
-
-
-// --- 伺服 | Static server
-gulp.task('browser-sync', function () {
+/*****************************************************
+ *  實時預覽 block
+ *****************************************************/
+function browser() {
   browserSync.init({
     server: {
       baseDir: "./public",
       reloadDebounce: 2000
     }
-  });
-});
-// --- 監控 | big brother watch you
-gulp.task('watch', () => {
-  gulp.watch(['./source/**/*.html', './source/**/*.ejs'], ['YAML-layout'])
-  // gulp.watch(['./source/**/*.jade', './source/**/*.pug'], ['jade'])
-  gulp.watch(['./source/stylesheets/**/*.sass', './source/stylesheets/**/*.scss'], ['sass']);
-  gulp.watch('./source/javascripts/**/*.js', ['babel']);
-})
-// --- 監控 | gulp-watch 的版本
- gulp.task('gWatch', function () {
+  })
+}
+exports.browser = browser
 
-  w(['./source/**/*.html', './source/**/*.ejs'], ['YAML-layout'])
-  w(['./source/stylesheets/**/*.sass', './source/stylesheets/**/*.scss'], ['sass'])
-  w('./source/javascripts/**/*.js', ['babel']);
-  w('./source/images/*', 'imageMin')
+function watch() {
+  gulp.watch(PATH.ejs.src, ejs)
+  // gulp.watch(['./source/**/*.jade', './source/**/*.pug'], pug)
+  gulp.watch(PATH.css.src, sass)
+  gulp.watch(PATH.js.src, babel)
+  console.log("watching file ~")
+}
+exports.watch = watch
 
-  function w(path, task) {
-    $.watch(path, function () {
-      gulp.start(task)
-    })
-  }
+/*****************************************************
+ *  指令 block
+ *****************************************************/
+exports.default = gulp.parallel(
+  imageMin,
+  babel,
+  vendorJS,
+  sass,
+  ejs,
+  browser,
+  watch
+)
 
-})
+const build = gulp.series(
+  gulp.series(clean, copy),
+  gulp.parallel(vendorJS, babel, sass, ejs, imageMin),
+  cleanEJS
+)
+exports.build = build
 
+// = gulp build --env production
+function setEnvPro(cb) {
+  envIsPro = true
+  cb()
+}
+exports.buildPro = gulp.series(setEnvPro, build)
 
-
-// --- 指令區 -------------------------------------------------------
-// --- 開發用 | gulp | gulp --env production
-gulp.task('default', ['imageMin', 'babel', 'vendorJS', 'sass', 'YAML-layout', 'browser-sync', 'watch'])
-// --- 輸出用 | gulp build | gulp build --env production
-gulp.task('sequence', gulpSequence('clean', 'copy', 'sass', 'vendorJS', 'babel', 'YAML-layout', 'imageMin'));
-gulp.task('build', ['sequence'])
-// --- 上傳用 | gulp deploy
-gulp.task('deploy', () => {
-  return gulp.src('./public/**/*').pipe($.ghPages());
-}); 
+function deploy() {
+  return gulp.src("./public/**/*").pipe($.ghPages())
+}
+exports.deploy = deploy
