@@ -41,6 +41,9 @@ body, html {
   line-height: 1.5;
   font-family: $font-family;
 }
+// html { // Safari 不支援 QQ
+//   scroll-behavior: smooth;
+// }
 h1 {
   font-size: $font-size*3;
 }
