@@ -24,7 +24,7 @@ $(document).ready(function() {
       var targetHeight = $(target).outerHeight(); // 元素的高，包含 padding
 
       // 判斷視窗位置是否進入連結對應到的元素範圍
-      if (scrollPos >= targetPos - 1 && scrollPos < targetPos + targetHeight) {
+      if (scrollPos >= targetPos - 200 && scrollPos < targetPos + targetHeight) {
         $(".scrollTop").removeClass("active"); // 先將所有 a 連結狀態都取消
         $(this).addClass("active"); // 將 a 連結的狀態變成 active
       } else {
