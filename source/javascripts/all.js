@@ -7,7 +7,7 @@ var scroll = new SmoothScroll('a[href*="#"]', {
 // 監控視窗的滾動
 // 滾動視窗時，就做事情
 var showSkill = false // 顯示過 skill 沒有
-$(window).scroll(function() {
+window.addEventListener('scroll', function() {
   var scrollPos = $(window).scrollTop() // 目前視窗的位置
   var windowHeight = $(window).height() // 目前畫面的高
   // 畫面進入連結對應區愧，變更狀態
