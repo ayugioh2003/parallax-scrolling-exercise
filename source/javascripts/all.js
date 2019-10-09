@@ -36,13 +36,13 @@ window.addEventListener("scroll", function() {
   })
 
   // 畫面進入 progress bar，秀出進度條
-  var skillTop = $("#skills").position().top
+  const skillTop = $q('#skills').offsetTop
   if (scrollPos + windowHeight / 2 >= skillTop && !showSkill) {
-    // 判斷 skillTop 是否在畫面的一半惹
-    $("#skills .progress-bar").each(function() {
-      // 抓每個 progress0bar
-      var thisValue = $(this).data("progress") // 抓 data-progress 的值
-      $(this).css("width", `${thisValue}%`) // 寫入寬度，讓進度條出來
+    $qa('#skills .progress-bar').forEach(function(ele){
+      var thisValue = ele.dataset.progress
+      console.log(thisValue)
+      console.log(ele)
+      ele.style['width'] = `${thisValue}%`
     })
     showSkill = true
   }
